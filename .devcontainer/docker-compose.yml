@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  meltano:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached  
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:warehouse
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  warehouse:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+
+  adminer:
+    image: adminer
+    # Runs adminer on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:warehouse
+    environment:
+      ADMINER_DESIGN: pepa-linha-dark
+      ADMINER_DEFAULT_SERVER: warehouse
+
+volumes:
+  postgres-data:
